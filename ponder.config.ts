@@ -2,10 +2,14 @@ import { createConfig } from "ponder";
 import { erc20ABI } from "./abis/erc20ABI";
 
 export default createConfig({
+  database: {
+    kind: "postgres",
+    connectionString: process.env.DATABASE_URL,
+  },
   chains: {
     mainnet: {
       id: 1,
-      rpc: process.env.PONDER_RPC_URL_1,
+      rpc: "https://eth-mainnet.g.alchemy.com/v2/-DCWWtN-4yo84gKA0Blrd4ke92PiOUGv",
     },
   },
   contracts: {

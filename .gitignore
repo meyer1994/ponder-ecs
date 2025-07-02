@@ -1,5 +1,7 @@
 # Dependencies
 /node_modules
+cdk.out
+.data
 
 # Debug
 npm-debug.log*
