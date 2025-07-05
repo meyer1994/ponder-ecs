@@ -114,12 +114,6 @@ export class EcsInfrastructureStack extends cdk.Stack {
           removalPolicy: cdk.RemovalPolicy.DESTROY,
         }),
       }),
-      // healthCheck: {
-      //     command: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:42069/health', '||', 'exit', '1'],
-      //     interval: cdk.Duration.seconds(30),
-      //     timeout: cdk.Duration.seconds(5),
-      //     retries: 3,
-      // },
     });
 
     // Application Service
@@ -157,13 +151,13 @@ export class EcsInfrastructureStack extends cdk.Stack {
       port: 42069,
       targets: [ponderService],
       protocol: elbv2.ApplicationProtocol.HTTP,
-      // healthCheck: {
-      //     path: '/health',
-      //     interval: cdk.Duration.seconds(60),
-      //     timeout: cdk.Duration.seconds(5),
-      //     healthyThresholdCount: 2,
-      //     unhealthyThresholdCount: 3,
-      // },
+      healthCheck: {
+        path: "/health",
+        interval: cdk.Duration.seconds(60),
+        timeout: cdk.Duration.seconds(5),
+        healthyThresholdCount: 2,
+        unhealthyThresholdCount: 3,
+      },
     });
 
     ponderService.connections.allowFrom(alb, ec2.Port.tcp(42069));
