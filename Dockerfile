@@ -11,5 +11,7 @@ RUN pnpm install
 ADD . .
 
 EXPOSE 42069
+ENV DATABASE_SCHEMA=$DATABASE_SCHEMA
+
 
 CMD [ "pnpm", "start" ]

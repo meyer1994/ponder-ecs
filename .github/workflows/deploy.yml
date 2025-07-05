@@ -1,0 +1,41 @@
+name: Deploy to Amazon ECR
+
+on:
+  push:
+    branches:
+      - master
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  # TODO: Change to your AWS region
+  AWS_REGION: us-east-1
+  # This is from infra.ts: `${id}-app` and id is 'ponder'
+  ECR_REPOSITORY: ponder-app
+
+jobs:
+  build-and-push:
+    name: Build and Push Docker Image to ECR
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-region: us-east-1
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+      - uses: aws-actions/amazon-ecr-login@v2
+        id: login-ecr
+
+      - uses: docker/build-push-action@v5
+        env:
+          AWS_REGION: us-east-1
+          DATABASE_SCHEMA: ${{ github.sha }}
+        with:
+          push: true
+          tags: ${{ steps.login-ecr.outputs.registry }}/ponder:latest

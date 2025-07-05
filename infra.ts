@@ -11,6 +11,7 @@ import * as ecs from "aws-cdk-lib/aws-ecs";
 import * as logs from "aws-cdk-lib/aws-logs";
 import * as elbv2 from "aws-cdk-lib/aws-elasticloadbalancingv2";
 import * as svcdisc from "aws-cdk-lib/aws-servicediscovery";
+import * as ecr from "aws-cdk-lib/aws-ecr";
 import { Construct } from "constructs";
 
 export class EcsInfrastructureStack extends cdk.Stack {
@@ -39,6 +40,13 @@ export class EcsInfrastructureStack extends cdk.Stack {
     const cluster = new ecs.Cluster(this, `${id}-cluster`, {
       vpc,
       clusterName: `${id}-cluster`,
+    });
+
+    // Create ECR repository for the application
+    const repository = new ecr.Repository(this, `${id}-repo`, {
+      repositoryName: id,
+      removalPolicy: cdk.RemovalPolicy.DESTROY,
+      autoDeleteImages: true,
     });
 
     // Create CloudMap Namespace
@@ -98,7 +106,7 @@ export class EcsInfrastructureStack extends cdk.Stack {
     });
 
     const ponderContainer = ponderTask.addContainer(`${id}-app-container`, {
-      image: ecs.ContainerImage.fromAsset("."),
+      image: ecs.ContainerImage.fromEcrRepository(repository),
       portMappings: [{ containerPort: 42069 }],
       environment: {
         NODE_ENV: "production",
@@ -169,6 +177,11 @@ export class EcsInfrastructureStack extends cdk.Stack {
       description: "URL of the Application Load Balancer",
     });
 
+    new cdk.CfnOutput(this, `${id}-app-ecr-uri`, {
+      value: repository.repositoryUri,
+      description: "Application ECR repository URI",
+    });
+
     new cdk.CfnOutput(this, `${id}-namespace-name`, {
       value: namespace.namespaceName,
       description: "CloudMap Namespace Name",
@@ -187,6 +200,7 @@ export class EcsInfrastructureStack extends cdk.Stack {
     vpc.applyRemovalPolicy(cdk.RemovalPolicy.DESTROY);
     cluster.applyRemovalPolicy(cdk.RemovalPolicy.DESTROY);
     namespace.applyRemovalPolicy(cdk.RemovalPolicy.DESTROY);
+    repository.applyRemovalPolicy(cdk.RemovalPolicy.DESTROY);
 
     pgTask.applyRemovalPolicy(cdk.RemovalPolicy.DESTROY);
     pgService.applyRemovalPolicy(cdk.RemovalPolicy.DESTROY);
