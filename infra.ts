@@ -102,6 +102,7 @@ export class EcsInfrastructureStack extends cdk.Stack {
       portMappings: [{ containerPort: 42069 }],
       environment: {
         NODE_ENV: "production",
+        PONDER_LOG_LEVEL: "trace",
         DATABASE_SCHEMA: "test",
         DATABASE_URL: `postgres://postgres:postgres@postgres.${id}.local:5432/postgres`,
       },
