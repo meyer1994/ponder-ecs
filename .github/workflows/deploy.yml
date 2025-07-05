@@ -32,5 +32,4 @@ jobs:
         with:
           push: true
           tags: ${{ steps.login-ecr.outputs.registry }}/ponder:latest
-          build-args:
-            - DATABASE_SCHEMA=${{ github.sha }}
+          build-args: DATABASE_SCHEMA=${{ github.sha }}
